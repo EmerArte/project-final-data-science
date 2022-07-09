@@ -1,4 +1,4 @@
-"""API para el diplomado de Python de la Universidad de Córdoba"""
+"""Universidad de Córdoba"""
 
 
 from fastapifastapi import FastAPIFastAPI
