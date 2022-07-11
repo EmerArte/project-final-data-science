@@ -159,8 +159,6 @@ if choose == "Home":
 elif choose == "Más detalles":
     with st.container():
         st.markdown('Hola, aqui va una info grafica')
-        st.multiselect("Seleccione", ["HOLA"], default=None, key=None,
-                       help=None, on_change=None, args=None, kwargs=None, disabled=False)
         st.markdown('Hola, aqui va una info grafica')
 
 elif choose == "Contacto":
