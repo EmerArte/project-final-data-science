@@ -9,6 +9,7 @@ from PIL import Image
 import numpy as np
 import io
 
+# prueba  grafica serie de tiempo
 
 def graphy_serie_time(df):
     df_grp = df.groupby(['FECHA HECHO'])['CANTIDAD'].sum().reset_index()
