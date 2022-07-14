@@ -104,7 +104,7 @@ def graphy_day_of_week_depto(df):
     return fig
 @st.cache(allow_output_mutation=True)
 def cargar_datos():
-    return pd.read_csv("Violencia_Intrafamiliar_Colombia_Clear.csv")
+    return pd.read_csv("Violencia_Intrafamiliar_Colombia.csv")
 
 
 st.set_page_config(page_title='Violencia intrafamiliar', layout='wide')
