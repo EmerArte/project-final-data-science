@@ -12,7 +12,7 @@ import io
 
 def graphy_serie_time(df):
     df_grp = df.groupby(['FECHA HECHO'])['CANTIDAD'].sum().reset_index()
-    fig = px.line(df_grp, x='FECHA HECHO', y="CANTIDAD", title='CANTIDAD DE CASOS DE VIOLENCIA INTRAFAMILIAR POR AÑO',
+    fig = px.line(df_grp, x='FECHA HECHO', y="CANTIDAD", title='CANTIDAD DE CASOS DE VIOLENCIA INTRAFAMILIAR POR DÍA',
                   color_discrete_sequence=['#7BE583'])
     fig.update_layout({'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'})
     fig.update_xaxes(rangeslider_visible=True,
@@ -29,9 +29,8 @@ def graphy_serie_time(df):
 
 def graphy_porcentual_gender_increment(df):
     
-    df_total_año = df.groupby(['Año'])['CANTIDAD'].sum().reset_index();
-    df_h_año = df[df.GENERO == 'MASCULINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index();
-    df_f_año = df[df.GENERO == 'FEMENINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index();
+    df_h_año = df[df.GENERO == 'MASCULINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index()
+    df_f_año = df[df.GENERO == 'FEMENINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index()
     df_h_año['cambio_porcentual'] = round((df_h_año['CANTIDAD'].pct_change()*100),0)
     df_f_año['cambio_porcentual'] = round((df_f_año['CANTIDAD'].pct_change()*100),0)
     df_h_año = df_h_año[df_h_año.Año < 2021]
@@ -39,8 +38,6 @@ def graphy_porcentual_gender_increment(df):
     df_f_año = df_f_año.dropna()
     df_h_año = df_h_año.dropna()
 
-
-    title = 'Incremento porcentual por año'
     labels = ['Masculino', 'Femenino']
     colors = ['#7BE583', '#9EFFCA']
 
@@ -170,10 +167,7 @@ def graphy_porcentual_gender_increment(df):
 
 def graphy_case_depto(df):
     df_grp1 = df.groupby(['DEPARTAMENTO'])['CANTIDAD'].sum().reset_index()
-    fig = px.line(df_grp1.sort_values(by='CANTIDAD', ascending=False), x='DEPARTAMENTO', y='CANTIDAD',
-                 title='CANTIDAD DE CASOS DE VIOLENCIA INTRAFAMILIAR POR DEPARTAMENTO',
-                 color_discrete_sequence=['#7BE583'])
-    fig.update_layout({'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'})
+    fig = px.bar(df_grp1.sort_values(by='CANTIDAD', ascending=False), x='DEPARTAMENTO', y='CANTIDAD', title='CANTIDAD DE CASOS DE VIOLENCIA INTRAFAMILIAR POR DEPARTAMENTO', height =700)
     fig.update_xaxes(tickangle=-90)
     return fig
 
@@ -199,20 +193,19 @@ def graphy_case_top5_depto(df):
     return fig
 
 
-def graphy_grupo_etario_top5_depto(df):
-    df_grp9 = df.groupby(['DEPARTAMENTO', 'GRUPO ETARIO'])['CANTIDAD'].sum().reset_index()
-    df_grp9 = df_grp9[(df_grp9['DEPARTAMENTO'] == 'CUNDINAMARCA') | (df_grp9['DEPARTAMENTO'] == 'ANTIOQUIA') | (
-                df_grp9['DEPARTAMENTO'] == 'VALLE') | (df_grp9['DEPARTAMENTO'] == 'SANTANDER') | (
-                                  df_grp9['DEPARTAMENTO'] == 'BOYACÁ')]
-
+def graphy_grupo_etario(df, df_departament = "CÓRDOBA", df_grupo = "MENORES"):
+    df_grp9 = df.groupby(['DEPARTAMENTO', 'ARMAS MEDIOS', 'GRUPO ETARIO'])['CANTIDAD'].sum().reset_index()
+    df_grp9 = df_grp9[(df_grp9['DEPARTAMENTO'] == str(df_departament))]
+    df_grp9 = df_grp9[(df_grp9['GRUPO ETARIO'] == str(df_grupo))]
     fig = px.bar(df_grp9.sort_values(by='CANTIDAD', ascending=True), x="GRUPO ETARIO", y='CANTIDAD',
-                 color="DEPARTAMENTO", title="CASOS POR GRUPO ETARIO - TOP 5 DEPARTAMENTOS MÁS VIOLENTOS",
+                 color="ARMAS MEDIOS", title="CASOS DE VIOLENCIA INTRAFAMILIAR POR GRUPO ETARIO EN {}".format(df_departament),
                   barmode='group',
-                 color_discrete_map={"CUNDINAMARCA": "#9EFFCA",
-                                     "ANTIOQUIA": "#00A5CF",
-                                     "VALLE": "#26A18D",
-                                     "SANTANDER": "#004E64",
-                                     "BOYACÁ": "#78E07C",
+                  color_discrete_map={"SIN EMPLEO DE ARMAS": "#9EFFCA",
+                                     "CONTUNDENTES": "#26A18D",
+                                     "ARMA BLANCA / CORTOPUNZANTE": "#004E64",
+                                     "ESCOPOLAMINA": "#00A5CF",
+                                     "NO REPORTA": "#8ECAE6",
+                                     "ARMA DE FUEGO": "#3DECAF"
                                      })
     fig.update_layout({'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'})
     return fig
@@ -229,7 +222,10 @@ def graphy_depto_gender(d):
     return fig
 
 def graphy_day_of_week_depto(df, week_day=1):
+
     df_grp5 = df.groupby(['DEPARTAMENTO', 'Dia de la semana'])['CANTIDAD'].sum().reset_index()
+    if (week_day==1):
+        df_grp5 = df_grp5[(df_grp5['Dia de la semana'] == 'Sunday')]
     df_grp5 = df_grp5[(df_grp5['DEPARTAMENTO'] == 'CUNDINAMARCA') | (df_grp5['DEPARTAMENTO'] == 'ANTIOQUIA') | (
                 df_grp5['DEPARTAMENTO'] == 'VALLE') | (df_grp5['DEPARTAMENTO'] == 'SANTANDER') | (
                                   df_grp5['DEPARTAMENTO'] == 'BOYACÁ')]
@@ -284,31 +280,44 @@ if choose == "Home":
                 'Saludos, bienvenido a la plataforma de predicción de violencia intrafamiliar en Colombia')
         st.markdown("""
         <p>
-        Este estudio fue realizado con la informacion recolectada durante la ultima decada, y tiene como objetivo predecir la cantidad de casos de violencia intrafamiliar que se presentan en el pais.
+        Este estudio fue realizado con la información recolectada durante la última década, y tiene como objetivo predecir la cantidad de casos de violencia intrafamiliar que se presentan en el país.        Este estudio fue realizado con la informacion recolectada durante la ultima decada, y tiene como objetivo predecir la cantidad de casos de violencia intrafamiliar que se presentan en el pais.
         <br>
-        A continuacion encontrará información general acerca del panorama de casos de violencia intrafamiliar en Colombia, y una breve descripcion de cada uno de los datos que se recolectan.
-        </p>
+        A continuación encontrará información general acerca del panorama de casos de violencia intrafamiliar en Colombia, y una breve descripción de cada uno de los datos que se recolectan.        </p>
         """, unsafe_allow_html=True)   
         
         with st.container():
             st.plotly_chart(graphy_serie_time(df),use_container_width=True)
             st.markdown("""
             <p>
-            Esta gráfica muestra la cantidad de casos de violencia intrafamiliar que se presentan en el pais en cada uno de los años de la historia.
-            Observamos que la cantidad de casos de violencia intrafamiliar que se presentan en el pais aumenta progresivamente a medida que avanza el tiempo.
-            Además, observamos que durante el transcurso de los años,comunmente se ve un aumento en la cantidad de casos de violencia intrafamiliar en el més de enero.
+            Esta gráfica muestra la cantidad de casos de violencia intrafamiliar que se presentan en el país en cada uno de los años de la historia.
+            Observamos que la cantidad de casos de violencia intrafamiliar que se presentan en el país aumenta progresivamente a medida que avanza el tiempo. Además, observamos que durante el transcurso de los años, comúnmente se ve un aumento en la cantidad de casos de violencia intrafamiliar en el mes de enero, específicamente encontramos un mayor número de casos en año nuevo, probablemente esto esté relacionado con el alcohol y las fiestas de fin de año.
             <br>
             </p>
+            <hr>
             """, unsafe_allow_html=True)
-            st.plotly_chart(graphy_case_top5_depto(df), use_container_width=True)
-            st.markdown("""
-            <p>
-            Esta gráfica muestra la cantidad de casos de violencia intrafamiliar que se presentan en cada uno de los 5 departamentos con más violencia intrafamiliar.
-            <br>
-            </p>
-            """, unsafe_allow_html=True)
+            with st.container():
+                st.subheader("La violencia intrafamiliar por departamento")
+                st.markdown("""
+                <p>
+                A continuación encontrará una gráfica con la información de detallada de cada uno de los departamentos, utilize los filtros para ver la información de cada departamento.
+                </p>
+                """, unsafe_allow_html=True)
+                col1, col2 = st.columns(2)
+                with col1:
+                    option = st.selectbox(
+                    'Departamento', tuple(pd.unique(df['DEPARTAMENTO'])))
+                    
+                with col2:
+                    option2 = st.selectbox(
+                    'Grupo etario', tuple(pd.unique(df['GRUPO ETARIO'])))
+                st.plotly_chart(graphy_grupo_etario(df,option, option2))
+                st.markdown("""
+                <p>
+                El común denominador en los casos de violencia intrafamiliar en la mayoria de departamentos es el uso de armas contundentes
+                </p>
+                """, unsafe_allow_html=True)
 
-
+            st.subheader("La violencia intrafamiliar por genero")
             st.plotly_chart(graphy_depto_gender(df), use_container_width=True)
             st.plotly_chart(graphy_day_of_week_depto(df), use_container_width=True)
 
