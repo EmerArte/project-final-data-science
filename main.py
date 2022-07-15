@@ -209,34 +209,15 @@ def graphy_grupo_etario(df, df_departament = "CÓRDOBA", df_grupo = "MENORES"):
                                      })
     fig.update_layout({'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'})
     return fig
-def graphy_depto_gender(d):
-    df_grp8 = df.groupby(['DEPARTAMENTO', 'ARMAS MEDIOS', 'GENERO'])['CANTIDAD'].sum().reset_index()
-    df_grp8 = df_grp8[(df_grp8['ARMAS MEDIOS'] == 'ARMA DE FUEGO')]
-    fig = px.bar(df_grp8.sort_values(by='CANTIDAD', ascending=False), x="DEPARTAMENTO", y="CANTIDAD", color="GENERO",
-                 title="DEPARTAMENTOS CON MAYOR USO DE ARMAS DE FUEGO POR GENERO",
-                 color_discrete_map={"FEMENINO": "#78E07C",
-                                     "MASCULINO": "#00A5CF",
-                                     })
-    fig.update_layout({'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'})
-    fig.update_xaxes(tickangle=-90)
-    return fig
-
-def graphy_day_of_week_depto(df, week_day=1):
-
-    df_grp5 = df.groupby(['DEPARTAMENTO', 'Dia de la semana'])['CANTIDAD'].sum().reset_index()
-    if (week_day==1):
-        df_grp5 = df_grp5[(df_grp5['Dia de la semana'] == 'Sunday')]
-    df_grp5 = df_grp5[(df_grp5['DEPARTAMENTO'] == 'CUNDINAMARCA') | (df_grp5['DEPARTAMENTO'] == 'ANTIOQUIA') | (
-                df_grp5['DEPARTAMENTO'] == 'VALLE') | (df_grp5['DEPARTAMENTO'] == 'SANTANDER') | (
-                                  df_grp5['DEPARTAMENTO'] == 'BOYACÁ')]
+def graphy_day_of_week_depto(df,df_departament):
+    df_grp5 = df.groupby(['DEPARTAMENTO', 'Dia de la semana', 'GENERO'])['CANTIDAD'].sum().reset_index()
+    df_grp5 = df_grp5[(df_grp5['DEPARTAMENTO'] == str(df_departament))]
     fig = px.bar(df_grp5.sort_values(by='CANTIDAD', ascending=False), x="Dia de la semana", y='CANTIDAD',
-                 color="DEPARTAMENTO",
-                 title="NUMERO DE CASOS POR DÍA EN LOS 5 DEPARTAMENTOS CON MÁS VIOLENCIA INTRAFAMILIAR", barmode='group',
-                 color_discrete_map={"CUNDINAMARCA": "#78E07C",
-                                     "ANTIOQUIA": "#004E64",
-                                     "VALLE": "#00A5CF",
-                                     "SANTANDER": "#26A18D",
-                                     "BOYACÁ": "#9EFFCA",
+                 color="GENERO",
+                 title="Número de casos de violencia intrafamiliar por día de la semana en el departamento '{}'".format(df_departament), barmode='group',
+                 color_discrete_map={"MASCULINO": "#90CAF9",
+                                     "FEMENINO": "#F48FB1",
+                                     "NO REPORTA": "#00A5CF",
                                      })
     fig.update_layout({'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'})
     return fig
@@ -263,9 +244,8 @@ st.markdown(
     """, unsafe_allow_html=True)
 
 with st.sidebar:
-    choose = option_menu("DASHBOARD", ["Home", "Más detalles", "Predecir", "Contacto"],
-                         icons=['house', 'kanban',
-                                'graph-up', 'person lines fill'],
+    choose = option_menu("DASHBOARD", ["Home", "Predecir", "Contacto"],
+                         icons=['house', 'graph-up', 'person lines fill'],
                          menu_icon="app-indicator", default_index=0,
                          styles={
         "container": {"padding": "5! important", "font-family": "sans-serif", "font-weight": "bold", "background-color": "var(--background-color)"},
@@ -304,27 +284,25 @@ if choose == "Home":
                 """, unsafe_allow_html=True)
                 col1, col2 = st.columns(2)
                 with col1:
-                    option = st.selectbox(
-                    'Departamento', tuple(pd.unique(df['DEPARTAMENTO'])))
+                    option = st.selectbox(key="a",
+                    label ='Departamento', options=tuple(pd.unique(df['DEPARTAMENTO'])))
                     
                 with col2:
                     option2 = st.selectbox(
                     'Grupo etario', tuple(pd.unique(df['GRUPO ETARIO'])))
-                st.plotly_chart(graphy_grupo_etario(df,option, option2))
+                st.plotly_chart(graphy_grupo_etario(df,option, option2),use_container_width=True)
                 st.markdown("""
                 <p>
-                El común denominador en los casos de violencia intrafamiliar en la mayoria de departamentos es el uso de armas contundentes
+                El común denominador en los casos de violencia intrafamiliar en la mayoria de departamentos es el
+                 uso de armas contundentes, además vemos un aumento en el numero de casos de violencia intrafamiliar en los adultos y uno de los departamentos con mayor cantidad de casos de violencia intrafamiliar es cundinamarca.
                 </p>
                 """, unsafe_allow_html=True)
-
             st.subheader("La violencia intrafamiliar por genero")
-            st.plotly_chart(graphy_depto_gender(df), use_container_width=True)
-            st.plotly_chart(graphy_day_of_week_depto(df), use_container_width=True)
+            with st.container():
+                option3 = st.selectbox(key="b",
+                label ='Departamento', options=tuple(pd.unique(df['DEPARTAMENTO'])))
+                st.plotly_chart(graphy_day_of_week_depto(df, option3), use_container_width=True)
 
-elif choose == "Más detalles":
-    with st.container():
-        st.markdown('Hola, aqui va una info grafica')
-        st.markdown('Hola, aqui va una info grafica')
 
 elif choose == "Contacto":
     with st.container():
