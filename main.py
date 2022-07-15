@@ -26,6 +26,148 @@ def graphy_serie_time(df):
                          ]
                      )))
     return fig
+
+def graphy_porcentual_gender_increment(df):
+    
+    df_total_año = df.groupby(['Año'])['CANTIDAD'].sum().reset_index();
+    df_h_año = df[df.GENERO == 'MASCULINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index();
+    df_f_año = df[df.GENERO == 'FEMENINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index();
+    df_h_año['cambio_porcentual'] = round((df_h_año['CANTIDAD'].pct_change()*100),0)
+    df_f_año['cambio_porcentual'] = round((df_f_año['CANTIDAD'].pct_change()*100),0)
+    df_h_año = df_h_año[df_h_año.Año < 2021]
+    df_f_año = df_f_año[df_f_año.Año < 2021]
+    df_f_año = df_f_año.dropna()
+    df_h_año = df_h_año.dropna()
+
+
+    title = 'Incremento porcentual por año'
+    labels = ['Masculino', 'Femenino']
+    colors = ['#7BE583', '#9EFFCA']
+
+    mode_size = [8, 8]
+    line_size = [2, 2]
+
+    x_data = np.vstack((np.arange(2011, 2020),)*2)
+
+    y_data = np.array([df_h_año['cambio_porcentual'],df_f_año['cambio_porcentual']])
+
+    fig = go.Figure()
+
+    for i in range(0, 2):
+        fig.add_trace(go.Scatter(x=x_data[i], y=y_data[i], mode='lines',
+            name=labels[i],
+            line=dict(color=colors[i], width=line_size[i]),
+            connectgaps=True,
+        ))
+
+        # endpoints
+        fig.add_trace(go.Scatter(
+            x=[x_data[i][0], x_data[i][-1]],
+            y=[y_data[i][0], y_data[i][-1]],
+            mode='markers',
+            marker=dict(color=colors[i], size=mode_size[i])
+        ))
+
+    fig.update_layout(
+        xaxis=dict(
+            showline=True,
+            showgrid=False,
+            showticklabels=True,
+            linecolor='rgb(204, 204, 204)',
+            linewidth=2,
+            ticks='outside',
+            tickfont=dict(
+                family='Arial',
+                size=12,
+                color='rgb(82, 82, 82)',
+            ),
+        ),
+        yaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showline=False,
+            showticklabels=False,
+        ),
+        autosize=False,
+        margin=dict(
+            autoexpand=False,
+            l=100,
+            r=20,
+            t=110,
+        ),
+        showlegend=False,
+        plot_bgcolor='white'
+        )
+    annotations = []
+
+    for i in range(0, 2):
+        fig.add_trace(go.Scatter(x=x_data[i], y=y_data[i], mode='lines',
+                name=labels[i],
+                line=dict(color=colors[i], width=line_size[i]),
+                connectgaps=True,
+        ))
+
+            # endpoints
+        fig.add_trace(go.Scatter(
+                x=[x_data[i][0], x_data[i][-1]],
+                y=[y_data[i][0], y_data[i][-1]],
+                mode='markers',
+                marker=dict(color=colors[i], size=mode_size[i])
+        ))
+
+    fig.update_layout(
+            xaxis=dict(
+                showline=True,
+                showgrid=False,
+                showticklabels=True,
+                linecolor='rgb(204, 204, 204)',
+                linewidth=2,
+                ticks='outside',
+                tickfont=dict(
+                    family='Arial',
+                    size=12,
+                    color='rgb(82, 82, 82)',
+                ),
+            ),
+            yaxis=dict(
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                showticklabels=False,
+            ),
+            autosize=False,
+            margin=dict(
+                autoexpand=False,
+                l=100,
+                r=20,
+                t=110,
+            ),
+            showlegend=False,
+            plot_bgcolor='white'
+        )
+
+    annotations = []
+
+    # Adding labels
+    for y_trace, label, color in zip(y_data, labels, colors):
+        # labeling the right_side of the plot
+        annotations.append(dict(xref='paper', x=0.95, y=y_trace[9],
+                                    xanchor='left', yanchor='middle',
+                                    text='{}'.format(label),
+                                    font=dict(family='Arial',
+                                                size=10),
+                                    showarrow=False))
+    # Title
+        annotations.append(dict(xref='paper', yref='paper', x=0.0, y=1.00,
+                                xanchor='left', yanchor='bottom',
+                                text='INCREMENTO PORCENTUAL ANUAL EN CASOS REPORTADOS POR GENERO',
+                                font=dict(family='Arial',
+                                            size=12,
+                                            color='black'),
+                                showarrow=False))
+    fig.update_layout(annotations=annotations)
+    return fig
+
 def graphy_case_depto(df):
     df_grp1 = df.groupby(['DEPARTAMENTO'])['CANTIDAD'].sum().reset_index()
     fig = px.line(df_grp1.sort_values(by='CANTIDAD', ascending=False), x='DEPARTAMENTO', y='CANTIDAD',
@@ -74,7 +216,7 @@ def graphy_grupo_etario_top5_depto(df):
                                      })
     fig.update_layout({'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'})
     return fig
-def graphy_depto_gender(df):
+def graphy_depto_gender(d):
     df_grp8 = df.groupby(['DEPARTAMENTO', 'ARMAS MEDIOS', 'GENERO'])['CANTIDAD'].sum().reset_index()
     df_grp8 = df_grp8[(df_grp8['ARMAS MEDIOS'] == 'ARMA DE FUEGO')]
     fig = px.bar(df_grp8.sort_values(by='CANTIDAD', ascending=False), x="DEPARTAMENTO", y="CANTIDAD", color="GENERO",
@@ -86,7 +228,7 @@ def graphy_depto_gender(df):
     fig.update_xaxes(tickangle=-90)
     return fig
 
-def graphy_day_of_week_depto(df):
+def graphy_day_of_week_depto(df, week_day=1):
     df_grp5 = df.groupby(['DEPARTAMENTO', 'Dia de la semana'])['CANTIDAD'].sum().reset_index()
     df_grp5 = df_grp5[(df_grp5['DEPARTAMENTO'] == 'CUNDINAMARCA') | (df_grp5['DEPARTAMENTO'] == 'ANTIOQUIA') | (
                 df_grp5['DEPARTAMENTO'] == 'VALLE') | (df_grp5['DEPARTAMENTO'] == 'SANTANDER') | (
@@ -141,18 +283,32 @@ if choose == "Home":
         st.title(
                 'Saludos, bienvenido a la plataforma de predicción de violencia intrafamiliar en Colombia')
         st.markdown("""
-        <p class ="fw-semibold fs-5 text-danger">
+        <p>
         Este estudio fue realizado con la informacion recolectada durante la ultima decada, y tiene como objetivo predecir la cantidad de casos de violencia intrafamiliar que se presentan en el pais.
         <br>
         A continuacion encontrará información general acerca del panorama de casos de violencia intrafamiliar en Colombia, y una breve descripcion de cada uno de los datos que se recolectan.
         </p>
         """, unsafe_allow_html=True)   
-        col1, col2 = st.columns(2)
-
-        with col1:
+        
+        with st.container():
+            st.plotly_chart(graphy_serie_time(df),use_container_width=True)
+            st.markdown("""
+            <p>
+            Esta gráfica muestra la cantidad de casos de violencia intrafamiliar que se presentan en el pais en cada uno de los años de la historia.
+            Observamos que la cantidad de casos de violencia intrafamiliar que se presentan en el pais aumenta progresivamente a medida que avanza el tiempo.
+            Además, observamos que durante el transcurso de los años,comunmente se ve un aumento en la cantidad de casos de violencia intrafamiliar en el més de enero.
+            <br>
+            </p>
+            """, unsafe_allow_html=True)
             st.plotly_chart(graphy_case_top5_depto(df), use_container_width=True)
-            st.plotly_chart(graphy_grupo_etario_top5_depto(df), use_container_width=True)
-        with col2:
+            st.markdown("""
+            <p>
+            Esta gráfica muestra la cantidad de casos de violencia intrafamiliar que se presentan en cada uno de los 5 departamentos con más violencia intrafamiliar.
+            <br>
+            </p>
+            """, unsafe_allow_html=True)
+
+
             st.plotly_chart(graphy_depto_gender(df), use_container_width=True)
             st.plotly_chart(graphy_day_of_week_depto(df), use_container_width=True)
 

@@ -1,6 +1,5 @@
 [theme]
-base="light"
-primaryColor = '#fb8501'
+primaryColor = '#26A18D'
 backgroundColor = '#FFFFFF'
 secondaryBackgroundColor = '#F3F3F3'
 textColor = '#023047'
