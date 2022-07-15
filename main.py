@@ -216,7 +216,7 @@ def graphy_grupo_etario_top5_depto(df):
                                      })
     fig.update_layout({'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'})
     return fig
-def graphy_depto_gender(df):
+def graphy_depto_gender(d):
     df_grp8 = df.groupby(['DEPARTAMENTO', 'ARMAS MEDIOS', 'GENERO'])['CANTIDAD'].sum().reset_index()
     df_grp8 = df_grp8[(df_grp8['ARMAS MEDIOS'] == 'ARMA DE FUEGO')]
     fig = px.bar(df_grp8.sort_values(by='CANTIDAD', ascending=False), x="DEPARTAMENTO", y="CANTIDAD", color="GENERO",
@@ -228,7 +228,7 @@ def graphy_depto_gender(df):
     fig.update_xaxes(tickangle=-90)
     return fig
 
-def graphy_day_of_week_depto(df):
+def graphy_day_of_week_depto(df, week_day=1):
     df_grp5 = df.groupby(['DEPARTAMENTO', 'Dia de la semana'])['CANTIDAD'].sum().reset_index()
     df_grp5 = df_grp5[(df_grp5['DEPARTAMENTO'] == 'CUNDINAMARCA') | (df_grp5['DEPARTAMENTO'] == 'ANTIOQUIA') | (
                 df_grp5['DEPARTAMENTO'] == 'VALLE') | (df_grp5['DEPARTAMENTO'] == 'SANTANDER') | (
@@ -307,11 +307,8 @@ if choose == "Home":
             <br>
             </p>
             """, unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
 
-        with col1:
-            st.plotly_chart(graphy_grupo_etario_top5_depto(df), use_container_width=True)
-        with col2:
+
             st.plotly_chart(graphy_depto_gender(df), use_container_width=True)
             st.plotly_chart(graphy_day_of_week_depto(df), use_container_width=True)
 
