@@ -276,7 +276,8 @@ pip-selfcheck.json
 
 # Built Visual Studio Code Extensions
 *.vsix
-
+#ignore notebooks
+*.ipynb
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history

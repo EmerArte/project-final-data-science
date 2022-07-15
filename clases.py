@@ -71,7 +71,7 @@ class APIModelBackEnd:
         self.armas_medio = armas_medio
         self.fecha = fecha
 
-    def _cargar_modelo(self, model_name: str = "Modelo_entrenado_LR.pkl"):
+    def _cargar_modelo(self, model_name: str = "train_model_knr.pkl"):
         self.model = joblib.load(model_name)
 
     def _preparar_datos(self):
@@ -79,10 +79,10 @@ class APIModelBackEnd:
         genero = self.genero
         grupo_etario = self.grupo_etario
         armas_medio = self.armas_medio
-        departamento = [0] * 32
-        genero = [0] * 3
-        grupo_etario = [0] * 3
-        armas_medio = [0] * 6
+        departamentos = [0] * 32
+        generos = [0] * 3
+        grupo_etarios = [0] * 3
+        armas_medios = [0] * 6
         fecha = self.fecha
         anio = fecha.year
         mes = fecha.month
@@ -113,7 +113,7 @@ class APIModelBackEnd:
        'ARMAS MEDIOS_ARMA DE FUEGO', 'ARMAS MEDIOS_CONTUNDENTES',
        'ARMAS MEDIOS_ESCOPOLAMINA', 'ARMAS MEDIOS_NO REPORTA',
        'ARMAS MEDIOS_SIN EMPLEO DE ARMAS'],
-            data=[[anio, mes,dia, *departamento, *genero, *grupo_etario, *armas_medio]],
+            data=[[anio, mes,dia, *departamentos, *generos, *grupo_etarios, *armas_medios]],
         )
 
         # Pone el 1 en la columna que debe ir el 1
@@ -146,9 +146,9 @@ class APIModelBackEnd:
                 if ((str(armas_medio) in x) and (x.startswith("ARMAS MEDIOS_")))
             ]
         ] = 1
-     
 
         return data_predict
+        
 
     def predecir(self, y_name="cantidad_violentados"):
         self._cargar_modelo()

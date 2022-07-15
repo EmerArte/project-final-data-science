@@ -10,9 +10,8 @@ from clases import OutputModelo, InputModelo, APIModelBackEnd
 app = FastAPI(title="API de Machine Learning del Diplomado", version="1.0.0")
 """Objeto FastAPI usado para el deployment de la API :)"""
 
- #response_model=List[OutputModelo]
 
-@app.post("/predict")
+@app.post("/predict", response_model=List[OutputModelo])
 async def predict_proba(inputs: List[InputModelo]):
     """Endpoint de predicción de la API"""
     # Creamos una lista vacía con las respuestas
