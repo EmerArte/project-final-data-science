@@ -28,7 +28,6 @@ async def predict_proba(inputs: List[InputModelo]):
             Input.armas_medio,
             Input.fecha
         )
-        print(model.predecir())
         response.append(model.predecir()[0])
     # Retorna  la lista con todas las predicciones hechas.
     return response
