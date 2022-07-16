@@ -256,7 +256,7 @@ with st.sidebar:
 if choose == "Home":
     with st.container():
         st.title(
-                'Saludos, bienvenido a la plataforma de predicción de violencia intrafamiliar en Colombia')
+                'Saludos, bienvenidos a la plataforma de predicción de violencia intrafamiliar en Colombia')
         st.markdown("""
         <p>
         Este estudio fue realizado con la información recolectada durante la última década, y tiene como objetivo predecir la cantidad de casos de violencia intrafamiliar que se presentan en el país.        Este estudio fue realizado con la informacion recolectada durante la ultima decada, y tiene como objetivo predecir la cantidad de casos de violencia intrafamiliar que se presentan en el pais.
@@ -323,7 +323,7 @@ if choose == "Home":
 elif choose == "Contacto":
     with st.container():
         st.title('Gupo desarrollador')
-        st.write("Somos unos estudiantes de ingeniería de sistemas de la Universidad De Córdoba, si tienes alguna duda o sugerencia puedes contactarnos en el siguiente correo: fktcg99@gmail.com, tambien puedes aportar a nuestro proyecto en github: https://github.com/Cgalvispadilla/project-final-data-science")
+        st.write("Somos unos estudiantes de ingeniería de sistemas de la Universidad De Córdoba, si tienes alguna duda o sugerencia puedes contactarnos en el siguiente correo: fktcg99@gmail.com, también puedes aportar a nuestro proyecto en GitHub: https://github.com/Cgalvispadilla/project-final-data-science")
         st.markdown("""
         <a class = "title_personalized" href="https://www.linkedin.com/in/cgalvispadilla/">CARLOS ANDRES GALVIS PADILLA</a>
         <br>
@@ -340,7 +340,7 @@ elif choose == "Predecir":
         st.title(
                 'Predicción de violencia intrafamiliar en Colombia')
         st.markdown('''<p>
-                        Este modelo fue entrenado con una base de datos de datos de violencia intrafamiliar en Colombia, y se utilizó el algoritmo de regresión llamado KNeighborsRegresor.<br>
+                        Este modelo fue entrenado con una base de datos de violencia intrafamiliar en Colombia, y se utilizó el algoritmo de regresión llamado KNeighborsRegresor.<br>
                         Rellene el siguiente formulario para realizar una predicción.
                     </p>''', unsafe_allow_html=True)
         col_1, col_2, col_3 = st.columns(3)
@@ -370,5 +370,5 @@ elif choose == "Predecir":
                     time.sleep(0.01)
                     my_bar.progress(percent_complete + 1)
                 
-                st.subheader("El pronostico de casos de violencia intrafamiliar para los filtros seleccionados es: {}".format(res['cantidad_violentados']))
+                st.subheader("El pronóstico de casos de violencia intrafamiliar para los filtros seleccionados es: {}".format(res['cantidad_violentados']))
             
