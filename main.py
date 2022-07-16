@@ -4,11 +4,9 @@ import datetime
 import plotly.express as px
 from streamlit_option_menu import option_menu
 import plotly.graph_objects as go
-import streamlit.components.v1 as html
-from PIL import Image
 import numpy as np
+import requests
 import io
-
 
 def graphy_serie_time(df):
     df_grp = df.groupby(['FECHA HECHO'])['CANTIDAD'].sum().reset_index()
@@ -28,7 +26,6 @@ def graphy_serie_time(df):
     return fig
 
 def graphy_porcentual_gender_increment(df):
-    
     df_h_año = df[df.GENERO == 'MASCULINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index()
     df_f_año = df[df.GENERO == 'FEMENINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index()
     df_h_año['cambio_porcentual'] = round((df_h_año['CANTIDAD'].pct_change()*100),0)
@@ -39,7 +36,7 @@ def graphy_porcentual_gender_increment(df):
     df_h_año = df_h_año.dropna()
 
     labels = ['Masculino', 'Femenino']
-    colors = ['#7BE583', '#9EFFCA']
+    colors = ['#90CAF9', '#F48FB1']
 
     mode_size = [8, 8]
     line_size = [2, 2]
@@ -157,7 +154,7 @@ def graphy_porcentual_gender_increment(df):
     # Title
         annotations.append(dict(xref='paper', yref='paper', x=0.0, y=1.00,
                                 xanchor='left', yanchor='bottom',
-                                text='INCREMENTO PORCENTUAL ANUAL EN CASOS REPORTADOS POR GENERO',
+                                text='INCREMENTO PORCENTUAL ANUAL EN CASOS REPORTADOS POR GÉNERO',
                                 font=dict(family='Arial',
                                             size=12,
                                             color='black'),
@@ -170,29 +167,6 @@ def graphy_case_depto(df):
     fig = px.bar(df_grp1.sort_values(by='CANTIDAD', ascending=False), x='DEPARTAMENTO', y='CANTIDAD', title='CANTIDAD DE CASOS DE VIOLENCIA INTRAFAMILIAR POR DEPARTAMENTO', height =700)
     fig.update_xaxes(tickangle=-90)
     return fig
-
-def graphy_case_top5_depto(df):
-    df_grp7 = df.groupby(['DEPARTAMENTO', 'ARMAS MEDIOS'])['CANTIDAD'].sum().reset_index()
-    df_grp7 = df_grp7[(df_grp7['DEPARTAMENTO'] == 'CUNDINAMARCA') | (df_grp7['DEPARTAMENTO'] == 'ANTIOQUIA') | (
-                df_grp7['DEPARTAMENTO'] == 'VALLE') | (df_grp7['DEPARTAMENTO'] == 'SANTANDER') | (
-                                  df_grp7['DEPARTAMENTO'] == 'BOYACÁ')]
-    df_grp7 = df_grp7.sort_values(['DEPARTAMENTO', 'CANTIDAD'], ascending=False).groupby(
-        ['DEPARTAMENTO', 'ARMAS MEDIOS']).head(5)
-    fig = px.bar(df_grp7.sort_values(by='CANTIDAD', ascending=False), x="DEPARTAMENTO", y='CANTIDAD',
-                 color="ARMAS MEDIOS",
-                 title="NUMERO DE CASOS POR DÍA EN LOS 5 DEPARTAMENTOS CON MÁS VIOLENCIA INTRAFAMILIAR",
-                  barmode='group',
-                 color_discrete_map={"SIN EMPLEO DE ARMAS": "#9EFFCA",
-                                     "CONTUNDENTES": "#26A18D",
-                                     "ARMA BLANCA / CORTOPUNZANTE": "#004E64",
-                                     "ESCOPOLAMINA": "#00A5CF",
-                                     "NO REPORTA": "#8ECAE6",
-                                     "ARMA DE FUEGO": "#3DECAF"
-                                     })
-    fig.update_layout({'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'})
-    return fig
-
-
 def graphy_grupo_etario(df, df_departament = "CÓRDOBA", df_grupo = "MENORES"):
     df_grp9 = df.groupby(['DEPARTAMENTO', 'ARMAS MEDIOS', 'GRUPO ETARIO'])['CANTIDAD'].sum().reset_index()
     df_grp9 = df_grp9[(df_grp9['DEPARTAMENTO'] == str(df_departament))]
@@ -224,7 +198,20 @@ def graphy_day_of_week_depto(df,df_departament):
 @st.cache(allow_output_mutation=True)
 def cargar_datos():
     return pd.read_csv("Violencia_Intrafamiliar_Colombia.csv")
+def calcular_prediccion(departament, grupo_etario, genero, fecha, arma_medio):
+    #date_send = date.strptime(fecha, '%Y-%m-%d')
 
+    request_data = {"departamento": departament,
+                     "genero": genero,
+                     "grupo_etario": grupo_etario,
+                     "fecha": str(fecha),
+                     "armas_medio": arma_medio}
+    data_cleaned = str(request_data).replace("'", '"')
+    print(data_cleaned)
+    url_api = "https://backed-api-data-science.herokuapp.com/predict"
+    pred = requests.post(url=url_api, data=data_cleaned).text
+    pred_df = pd.read_json(pred)
+    return pred_df
 
 st.set_page_config(page_title='Violencia intrafamiliar', layout='wide')
 df = cargar_datos()
@@ -279,7 +266,7 @@ if choose == "Home":
                 st.subheader("La violencia intrafamiliar por departamento")
                 st.markdown("""
                 <p>
-                A continuación encontrará una gráfica con la información de detallada de cada uno de los departamentos, utilize los filtros para ver la información de cada departamento.
+                A continuación encontrará una gráfica con la información de detallada de cada uno de los departamentos, utilice los filtros para ver la información de cada departamento.
                 </p>
                 """, unsafe_allow_html=True)
                 col1, col2 = st.columns(2)
@@ -294,14 +281,31 @@ if choose == "Home":
                 st.markdown("""
                 <p>
                 El común denominador en los casos de violencia intrafamiliar en la mayoria de departamentos es el
-                 uso de armas contundentes, además vemos un aumento en el numero de casos de violencia intrafamiliar en los adultos y uno de los departamentos con mayor cantidad de casos de violencia intrafamiliar es cundinamarca.
+                 uso de armas contundentes, además vemos un aumento en el numero de casos de violencia intrafamiliar en los adultos y uno de los departamentos con mayor cantidad de casos de violencia intrafamiliar es Cundinamarca.
                 </p>
                 """, unsafe_allow_html=True)
-            st.subheader("La violencia intrafamiliar por genero")
+            st.subheader("La violencia intrafamiliar por género")
             with st.container():
                 option3 = st.selectbox(key="b",
                 label ='Departamento', options=tuple(pd.unique(df['DEPARTAMENTO'])))
                 st.plotly_chart(graphy_day_of_week_depto(df, option3), use_container_width=True)
+                st.markdown("""
+                <p>
+                En este gráfico podemos observar que la violencia intrafamiliar afecta principalmente a las mujeres, y en la mayoria de departamentos existe un mayor número de casos los el día domingo.
+                <br>
+                En el siguiente gráfico nos enfocaremos en el incremento porcentual con respecto al año anterior.
+                </p>
+                """, unsafe_allow_html=True)
+                st.plotly_chart(graphy_porcentual_gender_increment(df), use_container_width=True)
+                st.markdown("""
+                <p>
+                Para entender esta gráfica tenemos que tener en cuenta los resultados globales en cuanto al número total de casos por año, ya que como hemos venido observando la cantidad de casos de violencia intrafamiliar aumenta progresivamente a medida que avanza el tiempo. Sin embargo, en este gráfico queremos observar cuál fue el cambio porcentual basándonos en el año anterior.
+                <br>
+                Una vez tenemos claro lo anterior, podemos observar como durante el periodo comprendido desde 2011 hasta 2015 se estaban presentando un incremento porcentual bastante marcado. Sin embargo, los periodos posteriores a este nos demuestran
+                que el número de casos con respecto al anterior no subía con el mismo ritmo que lo había hecho en los años anteriores, hasta el punto que en 2018 para los casos de violencia intrafamiliar en las mujeres el incremento porcentual fue negativo '-11%'.
+                <br>
+                El número de casos sigue siendo preocupante, pero a lo largo de los años estos han bajado su ritmo de crecimiento, lo cual da esperanza de que este pueda llegar a disminuir en un largo plazo.</p>
+                """, unsafe_allow_html=True)
 
 
 elif choose == "Contacto":
@@ -313,7 +317,35 @@ elif choose == "Contacto":
 
 elif choose == "Predecir":
     with st.container():
-        st.markdown('Hola, aqui va una info grafica')
-        st.markdown('Hola, aquí va una info grafica')
+        st.title(
+                'Predicción de violencia intrafamiliar en Colombia')
+        st.markdown('''<p>
+                        Este modelo fue entrenado con una base de datos de datos de violencia intrafamiliar en Colombia, y se utilizó el algoritmo de regresión llamado KNeighborsRegresor.<br>
+                        Rellene el siguiente formulario para realizar una predicción.
+                    </p>''', unsafe_allow_html=True)
+        col_1, col_2, col_3 = st.columns(3)
+        col_f, col_g = st.columns(2)
 
+        with st.container():
+            with col_1:
+                departament = st.selectbox(key="departament",
+                        label ='Seleccione un departamento', options=tuple(pd.unique(df['DEPARTAMENTO'])))
+                
+            with col_2:
+                grupo_etario = st.selectbox(key="grupo_etario",
+                        label ='Seleccione un grupo etario', options=tuple(pd.unique(df['GRUPO ETARIO'])))
+            with col_3:
+                genero = st.selectbox( key="genero", label ='Seleccione un género', options=tuple(pd.unique(df['GENERO'])))
+        with st.container():
+            with col_f:
+                fecha = st.date_input('Seleccione el día que desea predecir', value=datetime.date.today())
+            with col_g:
+                arma_medio = st.selectbox( key="arma_medio", label ='Seleccione el arma medio', options=tuple(pd.unique(df['ARMAS MEDIOS'])))
+            
+            predecir = st.button(label='Predecir')
+            
+            if (predecir):
+                res = calcular_prediccion(departament, grupo_etario, genero, datetime.datetime(fecha.year, fecha.month, fecha.day), arma_medio)
+                st.subheader("El pronostico de casos de violencia intrafamiliar para los filtros seleccionados es: {}".format(res['cantidad_violentados']))
+            
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

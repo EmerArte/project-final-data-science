@@ -24,7 +24,7 @@ class InputModelo(BM):
 
     armas_medio: Literal[
         'ARMA BLANCA / CORTOPUNZANTE', 'ARMA DE FUEGO',
-        'CONTUNDENTES', 'SIN EMPLEO DE ARMAS', 'ESCOPOLAMINA']
+        'CONTUNDENTES', 'SIN EMPLEO DE ARMAS', 'ESCOPOLAMINA', 'NO REPORTA']
 
     fecha: datetime = Field(None)
 
@@ -35,7 +35,7 @@ class InputModelo(BM):
                 "genero": 'MASCULINO',
                 "grupo_etario": "ADULTOS",
                 "armas_medio": 'ARMA BLANCA / CORTOPUNZANTE',
-                "fecha": datetime(2018, 1, 1)
+                "fecha": "2022-01-01"
             }
         }
 
@@ -69,7 +69,7 @@ class APIModelBackEnd:
         self.genero = genero
         self.grupo_etario = grupo_etario
         self.armas_medio = armas_medio
-        self.fecha = fecha
+        self.fecha = datetime.strptime(fecha, '%y-%m-%d')
 
     def _cargar_modelo(self, model_name: str = "train_model_knr.pkl"):
         self.model = joblib.load(model_name)
