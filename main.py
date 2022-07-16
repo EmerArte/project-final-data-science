@@ -27,7 +27,7 @@ def graphy_serie_time(df):
                      )))
     return fig
 def graphy_serie_time_result(df):
-    fig = px.bar(df, x='FECHA', y='PREDICCION', title='PREDICCIÓN DE CASOS DE VIOLENCIA INTRAFAMILIAR')
+    fig = px.bar(df, x='FECHA', y='PREDICCION', title='PREDICCIÓN DE CASOS DE VIOLENCIA INTRAFAMILIAR',color_discrete_sequence=['#7BE583'])
     return fig
 def graphy_porcentual_gender_increment(df):
     df_h_año = df[df.GENERO == 'MASCULINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index()
@@ -168,7 +168,7 @@ def graphy_porcentual_gender_increment(df):
 
 def graphy_case_depto(df):
     df_grp1 = df.groupby(['DEPARTAMENTO'])['CANTIDAD'].sum().reset_index()
-    fig = px.bar(df_grp1.sort_values(by='CANTIDAD', ascending=False), x='DEPARTAMENTO', y='CANTIDAD', title='CANTIDAD DE CASOS DE VIOLENCIA INTRAFAMILIAR POR DEPARTAMENTO', height =700)
+    fig = px.bar(df_grp1.sort_values(by='CANTIDAD', ascending=False), x='DEPARTAMENTO', y='CANTIDAD', title='CANTIDAD DE CASOS DE VIOLENCIA INTRAFAMILIAR POR DEPARTAMENTO')
     fig.update_xaxes(tickangle=-90)
     return fig
 def graphy_grupo_etario(df, df_departament = "CÓRDOBA", df_grupo = "MENORES"):
