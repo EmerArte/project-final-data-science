@@ -320,7 +320,7 @@ if choose == "Home":
 
 elif choose == "Contacto":
     with st.container():
-        st.title('Gupo desarrollador')
+        st.title('Grupo desarrollador')
         st.write("Somos unos estudiantes de ingeniería de sistemas de la Universidad De Córdoba, si tienes alguna duda o sugerencia puedes contactarnos en el siguiente correo: fktcg99@gmail.com, también puedes aportar a nuestro proyecto en GitHub: https://github.com/Cgalvispadilla/project-final-data-science")
         st.markdown("""
         <a class = "title_personalized" href="https://www.linkedin.com/in/cgalvispadilla/">CARLOS ANDRES GALVIS PADILLA</a>
