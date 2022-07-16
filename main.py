@@ -26,7 +26,9 @@ def graphy_serie_time(df):
                          ]
                      )))
     return fig
-
+def graphy_serie_time_result(df):
+    fig = px.bar(df, x='FECHA', y='PREDICCION', title='PREDICCIÓN DE CASOS DE VIOLENCIA INTRAFAMILIAR')
+    return fig
 def graphy_porcentual_gender_increment(df):
     df_h_año = df[df.GENERO == 'MASCULINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index()
     df_f_año = df[df.GENERO == 'FEMENINO'].groupby(['Año'])['CANTIDAD'].sum().reset_index()
@@ -200,17 +202,33 @@ def graphy_day_of_week_depto(df,df_departament):
 @st.cache(allow_output_mutation=True)
 def cargar_datos():
     return pd.read_csv("Violencia_Intrafamiliar_Colombia.csv")
-def calcular_prediccion(departament, grupo_etario, genero, fecha, arma_medio):
-    request_data = [{"departamento": departament,
-                     "genero": genero,
+def calcular_prediccion(departament, grupo_etario, genero, fecha_inicio, fecha_fin, arma_medio):
+    if fecha_inicio > fecha_fin:
+        return None
+    num_days = fecha_fin  - fecha_inicio
+    days = (np.timedelta64(num_days, 'D')).astype(int)
+    request_data =[]
+    fecha = fecha_inicio
+    for _ in range(days+1):
+        request_data.append({"departamento": departament,
+                      "genero": genero,
                      "grupo_etario": grupo_etario,
                      "armas_medio": arma_medio,
-                     "fecha": fecha}]
+                     "fecha": str(fecha)
+                     })
+        fecha = fecha + datetime.timedelta(days=1)
+    #request_data = [{"departamento": departament,
+     #                 "genero": genero,
+     #                 "grupo_etario": grupo_etario,
+      #                "armas_medio": arma_medio,
+       #               "fecha": str(feha),
+       # }]
+    
     data_cleaned = str(request_data).replace("'", '"')
     url_api = "https://backed-api-data-science.herokuapp.com/predict"
     pred = requests.post(url=url_api, json=json.loads(data_cleaned),headers={"Content-Type": "application/json"}).text
     pred_df = json.loads(pred)
-    return pred_df[0]
+    return pred_df
 
 st.set_page_config(page_title='Violencia intrafamiliar', layout='wide', page_icon='📊')
 df = cargar_datos()
@@ -342,31 +360,39 @@ elif choose == "Predecir":
                         Rellene el siguiente formulario para realizar una predicción.
                     </p>''', unsafe_allow_html=True)
         col_1, col_2, col_3 = st.columns(3)
-        col_f, col_g = st.columns(2)
 
         with st.container():
             with col_1:
                 departament = st.selectbox(key="departament",
-                        label ='Seleccione un departamento', options=tuple(pd.unique(df['DEPARTAMENTO'])))
+                label ='Seleccione un departamento', options=tuple(pd.unique(df['DEPARTAMENTO'])))
+                fecha_inicio = st.date_input('Seleccione el día de inicio de la predicción', value=datetime.date.today())
                 
             with col_2:
                 grupo_etario = st.selectbox(key="grupo_etario",
-                        label ='Seleccione un grupo etario', options=tuple(pd.unique(df['GRUPO ETARIO'])))
+                label ='Seleccione un grupo etario', options=tuple(pd.unique(df['GRUPO ETARIO'])))
+                fecha_fin = st.date_input('Seleccione el día de fin de la predicción', value=fecha_inicio + datetime.timedelta(days=6), min_value=fecha_inicio+datetime.timedelta(days=2))
             with col_3:
                 genero = st.selectbox( key="genero", label ='Seleccione un género', options=tuple(pd.unique(df['GENERO'])))
-            with col_f:
-                fecha = st.date_input('Seleccione el día que desea predecir', value=datetime.date.today())
-            with col_g:
                 arma_medio = st.selectbox( key="arma_medio", label ='Seleccione el arma medio', options=tuple(pd.unique(df['ARMAS MEDIOS'])))
             
             predecir = st.button(label='Predecir')
             
             if predecir :
                 my_bar = st.progress(0)
-                res = calcular_prediccion(departament, grupo_etario, genero, str(fecha), arma_medio)
-                for percent_complete in range(100):
-                    time.sleep(0.01)
+                res = calcular_prediccion(departament, grupo_etario, genero, fecha_inicio, fecha_fin, arma_medio)
+                casos_response = []
+                if res:
+                    for i in res:
+                        casos_response.append(i['cantidad_violentados'])
+                    for percent_complete in range(100):
+                        time.sleep(0.01)
                     my_bar.progress(percent_complete + 1)
+                    sub_df = pd.DataFrame()
+                    sub_df['FECHA'] = pd.date_range(str(fecha_inicio), str(fecha_fin))
+                    sub_df['PREDICCION'] = casos_response
+                    st.plotly_chart(graphy_serie_time_result(sub_df), use_container_width=True)
+                else:
+                    st.error('La fecha de inicio debe ser menor a la fecha de fin')
                 
-                st.subheader("El pronóstico de casos de violencia intrafamiliar para los filtros seleccionados es: {}".format(round(res['cantidad_violentados'])))
+                
             
