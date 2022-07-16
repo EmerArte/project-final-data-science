@@ -10,7 +10,6 @@ import json
 import time
 
 
-
 def graphy_serie_time(df):
     df_grp = df.groupby(['FECHA HECHO'])['CANTIDAD'].sum().reset_index()
     fig = px.line(df_grp, x='FECHA HECHO', y="CANTIDAD", title='CANTIDAD DE CASOS DE VIOLENCIA INTRAFAMILIAR POR DÍA',
@@ -213,7 +212,7 @@ def calcular_prediccion(departament, grupo_etario, genero, fecha, arma_medio):
     pred_df = json.loads(pred)
     return pred_df[0]
 
-st.set_page_config(page_title='Violencia intrafamiliar', layout='wide')
+st.set_page_config(page_title='Violencia intrafamiliar', layout='wide', page_icon='📊')
 df = cargar_datos()
 #styles
 st.markdown(
