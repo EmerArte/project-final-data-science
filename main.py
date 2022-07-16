@@ -204,7 +204,7 @@ def calcular_prediccion(departament, grupo_etario, genero, fecha, arma_medio):
     request_data = {"departamento": departament,
                      "genero": genero,
                      "grupo_etario": grupo_etario,
-                     "fecha": str(fecha),
+                     "fecha": fecha,
                      "armas_medio": arma_medio}
     data_cleaned = str(request_data).replace("'", '"')
     print(data_cleaned)
@@ -345,7 +345,7 @@ elif choose == "Predecir":
             predecir = st.button(label='Predecir')
             
             if (predecir):
-                res = calcular_prediccion(departament, grupo_etario, genero, datetime.datetime(fecha.year, fecha.month, fecha.day), arma_medio)
+                res = calcular_prediccion(departament, grupo_etario, genero, str(fecha), arma_medio)
                 st.subheader("El pronostico de casos de violencia intrafamiliar para los filtros seleccionados es: {}".format(res['cantidad_violentados']))
             
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

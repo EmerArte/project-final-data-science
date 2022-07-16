@@ -26,7 +26,7 @@ class InputModelo(BM):
         'ARMA BLANCA / CORTOPUNZANTE', 'ARMA DE FUEGO',
         'CONTUNDENTES', 'SIN EMPLEO DE ARMAS', 'ESCOPOLAMINA', 'NO REPORTA']
 
-    fecha: datetime = Field(None)
+    fecha: str = Field(None)
 
     class Config:
         schema_extra = {
