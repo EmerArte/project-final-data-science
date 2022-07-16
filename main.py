@@ -6,7 +6,11 @@ from streamlit_option_menu import option_menu
 import plotly.graph_objects as go
 import numpy as np
 import requests
+import json
 import io
+import time
+
+
 
 def graphy_serie_time(df):
     df_grp = df.groupby(['FECHA HECHO'])['CANTIDAD'].sum().reset_index()
@@ -199,19 +203,16 @@ def graphy_day_of_week_depto(df,df_departament):
 def cargar_datos():
     return pd.read_csv("Violencia_Intrafamiliar_Colombia.csv")
 def calcular_prediccion(departament, grupo_etario, genero, fecha, arma_medio):
-    #date_send = date.strptime(fecha, '%Y-%m-%d')
-
-    request_data = {"departamento": departament,
+    request_data = [{"departamento": departament,
                      "genero": genero,
                      "grupo_etario": grupo_etario,
-                     "fecha": fecha,
-                     "armas_medio": arma_medio}
+                     "armas_medio": arma_medio,
+                     "fecha": fecha}]
     data_cleaned = str(request_data).replace("'", '"')
-    print(data_cleaned)
     url_api = "https://backed-api-data-science.herokuapp.com/predict"
-    pred = requests.post(url=url_api, data=data_cleaned).text
-    pred_df = pd.read_json(pred)
-    return pred_df
+    pred = requests.post(url=url_api, json=json.loads(data_cleaned),headers={"Content-Type": "application/json"}).text
+    pred_df = json.loads(pred)
+    return pred_df[0]
 
 st.set_page_config(page_title='Violencia intrafamiliar', layout='wide')
 df = cargar_datos()
@@ -225,6 +226,17 @@ st.markdown(
         }
         i.icon{
             color: var(--text-color);
+        }
+        div.row-widget button{
+            width: 100%;
+        }
+        .title_personalized{
+            font-size: 1rem;
+            font-weight: bold;
+            text-color: var(--text-color) !important;
+            color: var(--text-color) !important;
+            text-decoration: none;
+            margin: 0 0.4rem;
         }
         
     </style>
@@ -310,11 +322,19 @@ if choose == "Home":
 
 elif choose == "Contacto":
     with st.container():
-        st.markdown('<p class="font">Acerca de los creadores</p>',
-                    unsafe_allow_html=True)
-        st.write("Somos unos estudiantes de ingeniería de sistemas que queremos que puedas conocernos y nos ayudes a mejorar, si tienes alguna duda o sugerencia puedes contactarnos en el siguiente correo: fktcg99@gmail.com, tambien puedes aportar a nuestro proyecto en github: https://github.com/Cgalvispadilla/project-final-data-science")
-
-
+        st.title('Gupo desarrollador')
+        st.write("Somos unos estudiantes de ingeniería de sistemas de la Universidad De Córdoba, si tienes alguna duda o sugerencia puedes contactarnos en el siguiente correo: fktcg99@gmail.com, tambien puedes aportar a nuestro proyecto en github: https://github.com/Cgalvispadilla/project-final-data-science")
+        st.markdown("""
+        <a class = "title_personalized" href="https://www.linkedin.com/in/cgalvispadilla/">CARLOS ANDRES GALVIS PADILLA</a>
+        <br>
+        <a class = "title_personalized" href="https://www.linkedin.com/in/emerarteaga22/">EMER ELIAS ARTEAGA CAMARGO</a>
+        <br>
+        <a class = "title_personalized" href="https://www.linkedin.com/in/andr%C3%A9s-otero-670a61232/">ANDRES FELIPE OTERO LOBO</a>
+        <br>
+        <a class = "title_personalized" href="https://www.linkedin.com/in/andres-camilo-ortiz-cogollo-3560b2243/">ANDRES CAMILO ORTIZ COGOLLO</a>
+        <br>
+        <a class = "title_personalized" href="https://www.linkedin.com/in/carlos-alberto-del-castillo-maussa-a3b0aa245/">CARLOS ALBERTO DEL CASTILLO MAUSSA</a>
+        """,unsafe_allow_html=True)
 elif choose == "Predecir":
     with st.container():
         st.title(
@@ -336,7 +356,6 @@ elif choose == "Predecir":
                         label ='Seleccione un grupo etario', options=tuple(pd.unique(df['GRUPO ETARIO'])))
             with col_3:
                 genero = st.selectbox( key="genero", label ='Seleccione un género', options=tuple(pd.unique(df['GENERO'])))
-        with st.container():
             with col_f:
                 fecha = st.date_input('Seleccione el día que desea predecir', value=datetime.date.today())
             with col_g:
@@ -344,8 +363,12 @@ elif choose == "Predecir":
             
             predecir = st.button(label='Predecir')
             
-            if (predecir):
+            if predecir :
+                my_bar = st.progress(0)
                 res = calcular_prediccion(departament, grupo_etario, genero, str(fecha), arma_medio)
+                for percent_complete in range(100):
+                    time.sleep(0.01)
+                    my_bar.progress(percent_complete + 1)
+                
                 st.subheader("El pronostico de casos de violencia intrafamiliar para los filtros seleccionados es: {}".format(res['cantidad_violentados']))
             
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
