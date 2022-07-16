@@ -69,7 +69,7 @@ class APIModelBackEnd:
         self.genero = genero
         self.grupo_etario = grupo_etario
         self.armas_medio = armas_medio
-        self.fecha = datetime.strptime(fecha, '%y-%m-%d')
+        self.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
 
     def _cargar_modelo(self, model_name: str = "train_model_knr.pkl"):
         self.model = joblib.load(model_name)
