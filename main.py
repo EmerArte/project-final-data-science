@@ -12,7 +12,7 @@ import time
 
 def graphy_serie_time(df):
     df_grp = df.groupby(['FECHA HECHO'])['CANTIDAD'].sum().reset_index()
-    fig = px.line(df_grp, x='FECHA HECHO', y="CANTIDAD", title='CANTIDAD DE CASOS DE VIOLENCIA INTRAFAMILIAR POR DÍA',
+    fig = px.line(df_grp, x='FECHA HECHO', y="CANTIDAD", title='Historial de casos de violencia intrafamiliar',
                   color_discrete_sequence=['#7BE583'])
     fig.update_layout({'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'})
     fig.update_xaxes(rangeslider_visible=True,
