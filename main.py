@@ -349,7 +349,7 @@ elif choose == "Contacto":
         <br>
         <a class = "title_personalized" href="https://www.linkedin.com/in/andres-camilo-ortiz-cogollo-3560b2243/">ANDRES CAMILO ORTIZ COGOLLO</a>
         <br>
-        <a class = "title_personalized" href="https://www.linkedin.com/in/carlos-alberto-del-castillo-maussa-a3b0aa245/">CARLOS ALBERTO DEL CASTILLO MAUSSA</a>
+        <a class = "title_personalized" href="www.linkedin.com/in/cdelcastillomaussa/">CARLOS ALBERTO DEL CASTILLO MAUSSA</a>
         """,unsafe_allow_html=True)
 elif choose == "Predecir":
     with st.container():
