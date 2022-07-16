@@ -20,7 +20,7 @@ class InputModelo(BM):
 
     genero: Literal['MASCULINO', 'FEMENINO', 'NO REPORTA']
 
-    grupo_etario: Literal["ADULTOS", "MENORES", "ADOLECENTES"]
+    grupo_etario: Literal["ADULTOS", "MENORES", "ADOLESCENTES"]
 
     armas_medio: Literal[
         'ARMA BLANCA / CORTOPUNZANTE', 'ARMA DE FUEGO',

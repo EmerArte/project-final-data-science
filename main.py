@@ -7,7 +7,6 @@ import plotly.graph_objects as go
 import numpy as np
 import requests
 import json
-import io
 import time
 
 
@@ -370,5 +369,5 @@ elif choose == "Predecir":
                     time.sleep(0.01)
                     my_bar.progress(percent_complete + 1)
                 
-                st.subheader("El pronóstico de casos de violencia intrafamiliar para los filtros seleccionados es: {}".format(res['cantidad_violentados']))
+                st.subheader("El pronóstico de casos de violencia intrafamiliar para los filtros seleccionados es: {}".format(round(res['cantidad_violentados'])))
             
